@@ -10,6 +10,10 @@ type Apple struct {
 	Volume  int `json:"vol"`
 }
 
+func (a Apple) PostBuildOpenAPISchema(s *spec.Schema) {
+	s.Description = "PostBuildOpenAPISchema"
+}
+
 func TestAppleDef(t *testing.T) {
 	db := definitionBuilder{Definitions: spec.Definitions{}, Config: Config{}}
 	db.addModelFrom(Apple{})
@@ -25,6 +29,22 @@ func TestAppleDef(t *testing.T) {
 		t.Errorf("got %v want %v", got, want)
 	}
 	if got, want := schema.ID, ""; got != want {
+		t.Errorf("got %v want %v", got, want)
+	}
+	if got, want := schema.Description, "PostBuildOpenAPISchema"; got != want {
+		t.Errorf("got %v want %v", got, want)
+	}
+}
+
+type AppleBasket struct {
+	Apples []Apple
+}
+
+func TestAppleBasketDef(t *testing.T) {
+	db := definitionBuilder{Definitions: spec.Definitions{}, Config: Config{}}
+	db.addModelFrom(AppleBasket{})
+	schema := db.Definitions["restfulspec.Apple"]
+	if got, want := schema.Description, "PostBuildOpenAPISchema"; got != want {
 		t.Errorf("got %v want %v", got, want)
 	}
 }

@@ -13,11 +13,6 @@ type definitionBuilder struct {
 	Config      Config
 }
 
-// Documented is
-type Documented interface {
-	SwaggerDoc() map[string]string
-}
-
 // Check if this structure has a method with signature func (<theModel>) SwaggerDoc() map[string]string
 // If it exists, retrieve the documentation and overwrite all struct tag descriptions
 func getDocFromMethodSwaggerDoc2(model reflect.Type) map[string]string {
@@ -25,6 +20,14 @@ func getDocFromMethodSwaggerDoc2(model reflect.Type) map[string]string {
 		return docable.SwaggerDoc()
 	}
 	return make(map[string]string)
+}
+
+// Check if this structure has a method with signature func (<theModel>) PostBuildOpenAPISchema(*Schema)
+// If it exists, allow the type to modify the schema definition.
+func updateSchemaWithMethodPostBuildOpenAPISchema(model reflect.Type, s *spec.Schema) {
+	if builder, ok := reflect.New(model).Elem().Interface().(SchemaBuilder); ok {
+		builder.PostBuildOpenAPISchema(s)
+	}
 }
 
 // addModelFrom creates and adds a Schema to the builder and detects and calls
@@ -116,6 +119,7 @@ func (b definitionBuilder) addModel(st reflect.Type, nameOverride string) *spec.
 	sm.ID = ""
 
 	// update model builder with completed model
+	updateSchemaWithMethodPostBuildOpenAPISchema(st, &sm)
 	b.Definitions[modelName] = sm
 
 	return &sm
