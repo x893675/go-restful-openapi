@@ -1,4 +1,4 @@
-module github.com/emicklei/go-restful-openapi
+module github.com/x893675/go-restful-openapi
 
 require (
 	github.com/PuerkitoBio/purell v1.1.0 // indirect
