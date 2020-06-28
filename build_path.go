@@ -217,6 +217,22 @@ func buildResponse(e restful.ResponseError, cfg Config) (r spec.Response) {
 			}
 		}
 	}
+	if e.Headers != nil {
+		header := make(map[string]spec.Header, len(e.Headers))
+		for k, v := range e.Headers {
+			header[k] = spec.Header{
+				SimpleSchema: spec.SimpleSchema{
+					Type:             v.Type,
+					Format:           v.Format,
+					CollectionFormat: v.CollectionFormat,
+					Default:          v.Default,
+				},
+				HeaderProps: spec.HeaderProps{
+					Description: v.Description,
+				},
+			}
+		}
+	}
 	return r
 }
 
@@ -248,11 +264,11 @@ func jsonSchemaType(modelName string) string {
 		"int32": "integer",
 		"int64": "integer",
 
-		"byte":      "integer",
-		"float64":   "number",
-		"float32":   "number",
-		"bool":      "boolean",
-		"time.Time": "string",
+		"byte":          "integer",
+		"float64":       "number",
+		"float32":       "number",
+		"bool":          "boolean",
+		"time.Time":     "string",
 		"time.Duration": "integer",
 	}
 	mapped, ok := schemaMap[modelName]
